@@ -3,6 +3,14 @@ export type ClientId =
   'claude-desktop' | 'claude-code' | 'cursor' | 'vscode' | 'windsurf' | 'generic';
 export type Transport = 'stdio' | 'http' | 'sse';
 
+export interface ClientConfig {
+  id: ClientId;
+  name: string;
+  userPaths: string[];
+  projectPaths: string[];
+  key: string;
+}
+
 export interface SourceLoc {
   line: number;
   column: number;

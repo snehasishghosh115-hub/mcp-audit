@@ -3,6 +3,19 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com) and [S
 
 ## [Unreleased]
 
+## [0.1.0-alpha] - 2024-XX-XX
+### Added
+- JSONC parser with position tracking (`src/parse/jsonc.ts`)
+- Client discovery for Claude Desktop, Claude Code, Cursor, VS Code, Windsurf (`src/discovery/`)
+- Normalization to `ServerEntry` (`src/parse/normalize.ts`)
+- Rule engine skeleton (`src/engine/run.ts`)
+- Config loader with validation (`src/config/index.ts`)
+- Reporters: text, JSON, SARIF (`src/reporters/`)
+- Secret detection utilities (`src/util/secrets.ts`, `src/util/redact.ts`)
+- File system utilities (`src/util/fs.ts`)
+- CLI commands: scan, rules, explain, init
+- Full test suite with lint, typecheck, test passing
+
 ## [0.0.1] - 2024-XX-XX
 ### Added
 - Project scaffolding: package.json, tsconfig.json, tsup.config.ts, vitest.config.ts
