@@ -448,16 +448,30 @@ export function getLoc(
   return { line, column };
 }
 
+function extractValue(node: JsoncNode): unknown {
+  if (node.type === 'object' && node.children instanceof Map) {
+    const result: Record<string, unknown> = {};
+    for (const [key, child] of node.children) {
+      result[key] = extractValue(child);
+    }
+    return result;
+  }
+  if (node.type === 'array' && Array.isArray(node.children)) {
+    return node.children.map(extractValue);
+  }
+  return node.value;
+}
+
 export function getValueAtPath(node: JsoncNode, path: (string | number)[]): unknown {
-  let current: unknown = node.value;
+  let current: JsoncNode | undefined = node;
   for (const key of path) {
-    if (current === null || current === undefined) return undefined;
-    if (typeof current === 'object' && !Array.isArray(current)) {
-      current = (current as Record<string, unknown>)[String(key)];
-    } else if (Array.isArray(current)) {
+    if (!current) return undefined;
+    if (current.type === 'object' && current.children instanceof Map) {
+      current = current.children.get(String(key));
+    } else if (current.type === 'array' && Array.isArray(current.children)) {
       const idx = key as number;
-      if (idx >= 0 && idx < current.length) {
-        current = current[idx];
+      if (idx >= 0 && idx < current.children.length) {
+        current = current.children[idx];
       } else {
         return undefined;
       }
@@ -465,5 +479,6 @@ export function getValueAtPath(node: JsoncNode, path: (string | number)[]): unkn
       return undefined;
     }
   }
-  return current;
+  if (!current) return undefined;
+  return extractValue(current);
 }
