@@ -1,0 +1,72 @@
+{
+  "name": "@snehasishghosh115-hub/mcp-audit",
+  "version": "0.0.1",
+  "description": "Security audit CLI for MCP server configs and tool definitions",
+  "type": "module",
+  "bin": {
+    "mcp-audit": "dist/cli.js"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "security",
+    "audit",
+    "cli",
+    "ai",
+    "claude",
+    "cursor",
+    "sarif"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "author": "snehasishghosh115-hub",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snehasishghosh115-hub/mcp-audit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/snehasishghosh115-hub/mcp-audit/issues"
+  },
+  "homepage": "https://github.com/snehasishghosh115-hub/mcp-audit#readme",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "eslint": "^9.8.0",
+    "eslint-plugin-prettier": "^5.5.7",
+    "prettier": "^3.3.0",
+    "tsup": "^8.2.0",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^2.0.0"
+  }
+}
