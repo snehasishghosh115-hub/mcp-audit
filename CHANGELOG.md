@@ -3,6 +3,11 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com) and [S
 
 ## [Unreleased]
 
+## [0.1.0-rc] - 2024-XX-XX
+### Added
+- SARIF 2.1.0 schema validation test
+- All three reporters (text, JSON, SARIF) verified working end-to-end
+
 ## [0.1.0-beta] - 2024-XX-XX
 ### Added
 - P0 security rules (MCPA-SEC-001 through MCPA-SEC-009, MCPA-SEC-014, MCPA-SEC-015):
