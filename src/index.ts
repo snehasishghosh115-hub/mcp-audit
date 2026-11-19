@@ -24,6 +24,7 @@ import { loadConfig } from './config/index.js';
 import { ALL_RULES } from './rules/index.js';
 import { getClientById } from './discovery/clients.js';
 import { readFileSync } from 'node:fs';
+import { introspectServers } from './introspect/index.js';
 
 export async function scan(
   options: {
@@ -38,6 +39,7 @@ export async function scan(
     skipRuleIds?: string[];
     strict?: boolean;
     toolsPath?: string;
+    introspect?: boolean;
   } = {}
 ): Promise<ScanResult> {
   const startTime = Date.now();
@@ -127,11 +129,54 @@ export async function scan(
     allEntries.push(dummyEntry);
   }
 
+  // Introspection: connect to servers and fetch live tool definitions
+  let introspectToolsMap: Map<string, { server: string; tools: ToolDef[] }> | undefined;
+  if (options.introspect && allEntries.length > 0) {
+    try {
+      const introspectResults = await introspectServers(allEntries);
+      introspectToolsMap = new Map();
+      for (const result of introspectResults) {
+        if (result.tools.length > 0) {
+          introspectToolsMap.set(result.serverId, {
+            server: result.serverName,
+            tools: result.tools.map(t => ({
+              server: result.serverName,
+              name: t.name,
+              description: t.description,
+              inputSchema: t.inputSchema,
+            })),
+          });
+        }
+      }
+    } catch (e) {
+      console.error(`Introspection failed: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
+  // Merge tools maps: introspection results take precedence over --tools file
+  const finalToolsMap = new Map([...(toolsMap ?? []), ...(introspectToolsMap ?? [])]);
+
+  // If toolsPath was provided but no config files found, create a dummy entry for the tools
+  if (finalToolsMap.size > 0 && allEntries.length === 0) {
+    // Create a minimal entry to run tool rules against
+    const dummyEntry: ServerEntry = {
+      id: 'tools-file',
+      name: 'tools-file',
+      client: 'generic',
+      file: options.toolsPath ?? 'introspect',
+      scope: 'project',
+      transport: 'stdio',
+      loc: { line: 1, column: 1 },
+      locOf: () => undefined,
+    };
+    allEntries.push(dummyEntry);
+  }
+
   const { findings, errors: ruleErrors } = runRules(
     allEntries,
     ALL_RULES,
     resolvedConfig,
-    toolsMap
+    finalToolsMap
   );
 
   const durationMs = Date.now() - startTime;

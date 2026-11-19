@@ -38,6 +38,8 @@ scan options
       --rule <id,...>       Only run these rules
       --skip-rule <id,...>  Skip these rules
       --tools <file>        Audit a saved tools/list JSON file
+      --introspect          Start/connect to servers to fetch live tool definitions (RUNS CODE)
+  -y, --yes                 Skip --introspect confirmation
       --strict              Treat parse/read errors as failures (exit 1)
 `);
 }
@@ -59,6 +61,8 @@ async function main(): Promise<void> {
       rule: { type: 'string' },
       'skip-rule': { type: 'string' },
       tools: { type: 'string' },
+      introspect: { type: 'boolean' },
+      yes: { type: 'boolean', short: 'y' },
       strict: { type: 'boolean' },
     },
     allowPositionals: true,
@@ -82,6 +86,35 @@ async function main(): Promise<void> {
       const ruleIds = values.rule ? values.rule.split(',') : undefined;
       const skipRuleIds = values['skip-rule'] ? values['skip-rule'].split(',') : undefined;
 
+      // Handle introspection confirmation
+      if (values.introspect && !values.yes) {
+        console.error(
+          'WARNING: --introspect will START the configured MCP servers to fetch live tool definitions.'
+        );
+        console.error('This executes code from your configuration. Only use on configs you trust.');
+        console.error('Continue? [y/N] ');
+
+        const stdin = process.stdin;
+        stdin.setRawMode(true);
+        stdin.resume();
+        stdin.setEncoding('utf-8');
+
+        await new Promise<void>(resolve => {
+          const onData = (data: string) => {
+            stdin.removeListener('data', onData);
+            stdin.setRawMode(false);
+            stdin.pause();
+            if (data.toLowerCase().trim() === 'y') {
+              resolve();
+            } else {
+              console.error('Aborted.');
+              process.exit(0);
+            }
+          };
+          stdin.on('data', onData);
+        });
+      }
+
       const result = await scan({
         paths: positionals.slice(1).length > 0 ? positionals.slice(1) : undefined,
         failOn: values['fail-on'],
@@ -94,6 +127,7 @@ async function main(): Promise<void> {
         skipRuleIds,
         strict: values.strict,
         toolsPath: values.tools,
+        introspect: values.introspect,
       });
 
       let output: string;

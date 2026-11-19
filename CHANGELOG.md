@@ -3,6 +3,17 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com) and [S
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-XX-XX
+### Added
+- Introspection (`--introspect` flag) to start/connect to MCP servers and fetch live tool definitions:
+  - stdio transport support (JSON-RPC 2.0 over stdin/stdout)
+  - HTTP/SSE transport support (Streamable HTTP and SSE fallback)
+  - Safety: confirmation prompt, `--yes` flag, 10s timeout per server
+  - Sanitized environment (only PATH, HOME, etc. + server's own env)
+  - Process cleanup on exit/timeout
+- Tool rules (MCPA-TOOL-001..003) run on live tool definitions from introspection
+- Introspection errors are reported but don't stop static analysis
+
 ## [0.2.0] - 2024-XX-XX
 ### Added
 - GitHub Action (`action.yml`) for CI integration with SARIF upload
