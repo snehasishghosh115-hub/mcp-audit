@@ -3,6 +3,19 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com) and [S
 
 ## [Unreleased]
 
+## [0.1.0] - 2024-XX-XX
+### Added
+- P1 security rules:
+  - MCPA-SEC-010: Typosquat detection for known MCP packages
+  - MCPA-SEC-016: Risky remote hosts (raw IPs, tunnel hosts)
+- Tool analysis rules (require --tools or --introspect):
+  - MCPA-TOOL-001: Prompt-injection phrasing in tool descriptions
+  - MCPA-TOOL-002: Hidden/invisible Unicode in tool names/descriptions
+  - MCPA-TOOL-003: Tool name collision/shadowing across servers
+- `--tools` flag to audit saved tools/list JSON output
+- Levenshtein-based typosquat detection with trustedPackages config
+- Known MCP package list in `src/rules/data/known-packages.ts`
+
 ## [0.1.0-rc] - 2024-XX-XX
 ### Added
 - SARIF 2.1.0 schema validation test
