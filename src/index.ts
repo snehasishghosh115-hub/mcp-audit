@@ -14,6 +14,7 @@ import type {
   ClientId,
   ServerEntry,
   ScanError,
+  ToolDef,
 } from './types.js';
 import { discoverConfigFiles } from './discovery/discover.js';
 import { parseJsonc } from './parse/jsonc.js';
@@ -22,6 +23,7 @@ import { runRules } from './engine/run.js';
 import { loadConfig } from './config/index.js';
 import { ALL_RULES } from './rules/index.js';
 import { getClientById } from './discovery/clients.js';
+import { readFileSync } from 'node:fs';
 
 export async function scan(
   options: {
@@ -35,6 +37,7 @@ export async function scan(
     ruleIds?: string[];
     skipRuleIds?: string[];
     strict?: boolean;
+    toolsPath?: string;
   } = {}
 ): Promise<ScanResult> {
   const startTime = Date.now();
@@ -51,6 +54,30 @@ export async function scan(
     noProject: options.noProject,
     strict: options.strict,
   };
+
+  // Load tools from file if provided
+  let toolsMap: Map<string, { server: string; tools: ToolDef[] }> | undefined;
+  if (options.toolsPath) {
+    try {
+      const content = readFileSync(options.toolsPath, 'utf-8');
+      const toolsData = JSON.parse(content);
+      if (toolsData.tools && Array.isArray(toolsData.tools)) {
+        // For --tools mode, we create a pseudo-server entry for the tools
+        toolsMap = new Map();
+        toolsMap.set('tools-file', {
+          server: 'tools-file',
+          tools: toolsData.tools.map((t: ToolDef) => ({
+            server: 'tools-file',
+            name: t.name,
+            description: t.description,
+            inputSchema: t.inputSchema,
+          })),
+        });
+      }
+    } catch (e) {
+      console.error(`Failed to load tools file: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
 
   const { files: discoveredFiles, errors: discoverErrors } = discoverConfigFiles({
     cwd: process.cwd(),
@@ -84,7 +111,28 @@ export async function scan(
     }
   }
 
-  const { findings, errors: ruleErrors } = runRules(allEntries, ALL_RULES, resolvedConfig);
+  // If toolsPath was provided but no config files found, create a dummy entry for the tools
+  if (toolsMap && allEntries.length === 0) {
+    // Create a minimal entry to run tool rules against
+    const dummyEntry: ServerEntry = {
+      id: 'tools-file',
+      name: 'tools-file',
+      client: 'generic',
+      file: options.toolsPath!,
+      scope: 'project',
+      transport: 'stdio',
+      loc: { line: 1, column: 1 },
+      locOf: () => undefined,
+    };
+    allEntries.push(dummyEntry);
+  }
+
+  const { findings, errors: ruleErrors } = runRules(
+    allEntries,
+    ALL_RULES,
+    resolvedConfig,
+    toolsMap
+  );
 
   const durationMs = Date.now() - startTime;
 

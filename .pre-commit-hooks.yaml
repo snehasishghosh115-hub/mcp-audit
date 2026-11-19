@@ -1,0 +1,10 @@
+- id: mcp-audit
+  name: mcp-audit
+  description: 'Security audit for MCP server configurations'
+  entry: npx --yes mcp-audit scan --no-user --fail-on high
+  language: system
+  types: [file]
+  files: '(^|/)(\.mcp\.json|mcp\.json|mcp_config\.json|claude_desktop_config\.json)$'
+  pass_filenames: true
+  minimum_pre_commit_version: '2.0.0'
+  require_serial: true

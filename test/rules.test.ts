@@ -433,3 +433,16 @@ describe('Rules', () => {
     });
   });
 });
+
+describe('MCPA-TOOL-001: Prompt injection (via --tools)', () => {
+  it('should detect prompt injection in tools file', async () => {
+    const { scan } = await import('../src/index.js');
+    const result = await scan({
+      toolsPath: join(__dirname, 'fixtures/tools.json'),
+    });
+    const toolFindings = result.findings.filter(f => f.ruleId === 'MCPA-TOOL-001');
+    expect(toolFindings.length).toBeGreaterThan(0);
+    expect(toolFindings[0].severity).toBe('high');
+    expect(toolFindings[0].server).toBe('tools-file');
+  });
+});

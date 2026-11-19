@@ -3,6 +3,13 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com) and [S
 
 ## [Unreleased]
 
+## [0.2.0] - 2024-XX-XX
+### Added
+- GitHub Action (`action.yml`) for CI integration with SARIF upload
+- Pre-commit hook (`.pre-commit-hooks.yaml`) for local git integration
+- Example CI workflow (`docs/examples/ci.yml`)
+- Example pre-commit config (`docs/examples/pre-commit-config.yaml`)
+
 ## [0.1.0] - 2024-XX-XX
 ### Added
 - P1 security rules:

@@ -1,0 +1,6 @@
+# Add to your .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/snehasishghosh115-hub/mcp-audit
+    rev: v1.0.0  # Update to the latest tag
+    hooks:
+      - id: mcp-audit

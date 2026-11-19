@@ -37,6 +37,7 @@ scan options
       --config <file>       Path to .mcp-audit.json
       --rule <id,...>       Only run these rules
       --skip-rule <id,...>  Skip these rules
+      --tools <file>        Audit a saved tools/list JSON file
       --strict              Treat parse/read errors as failures (exit 1)
 `);
 }
@@ -57,6 +58,7 @@ async function main(): Promise<void> {
       config: { type: 'string' },
       rule: { type: 'string' },
       'skip-rule': { type: 'string' },
+      tools: { type: 'string' },
       strict: { type: 'boolean' },
     },
     allowPositionals: true,
@@ -91,6 +93,7 @@ async function main(): Promise<void> {
         ruleIds,
         skipRuleIds,
         strict: values.strict,
+        toolsPath: values.tools,
       });
 
       let output: string;

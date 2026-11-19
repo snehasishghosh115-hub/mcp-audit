@@ -1,0 +1,71 @@
+name: 'MCP Audit'
+description: 'Scan MCP server configs for security risks'
+author: 'snehasishghosh115-hub'
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  paths:
+    description: 'Files/dirs to scan (space-separated). Empty = auto-discover.'
+    required: false
+    default: ''
+  fail-on:
+    description: 'Severity threshold for exit code 1'
+    required: false
+    default: 'high'
+  version:
+    description: 'mcp-audit version to use'
+    required: false
+    default: 'latest'
+  sarif-file:
+    description: 'SARIF output file path'
+    required: false
+    default: 'mcp-audit.sarif'
+  config-file:
+    description: 'Path to .mcp-audit.json config file'
+    required: false
+    default: ''
+  no-user:
+    description: 'Skip user-level configs (CI friendly)'
+    required: false
+    default: 'true'
+  no-project:
+    description: 'Skip project-level configs'
+    required: false
+    default: 'false'
+  client:
+    description: 'Limit discovery to specific clients (comma-separated)'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Run mcp-audit
+      id: mcp-audit
+      shell: bash
+      run: |
+        npx --yes mcp-audit@${{ inputs.version }} scan ${{ inputs.paths }} \
+          --no-user=${{ inputs.no-user }} \
+          --no-project=${{ inputs.no-project }} \
+          --fail-on ${{ inputs.fail-on }} \
+          -f sarif -o ${{ inputs.sarif-file }} \
+          ${INPUT_CLIENT:+--client "${INPUT_CLIENT}"} \
+          ${INPUT_CONFIG_FILE:+--config "${INPUT_CONFIG_FILE}"}
+      env:
+        INPUT_CLIENT: ${{ inputs.client }}
+        INPUT_CONFIG_FILE: ${{ inputs.config-file }}
+
+    - name: Upload SARIF
+      if: always()
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ inputs.sarif-file }}
+        category: mcp-audit
