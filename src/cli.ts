@@ -40,6 +40,10 @@ scan options
       --tools <file>        Audit a saved tools/list JSON file
       --introspect          Start/connect to servers to fetch live tool definitions (RUNS CODE)
   -y, --yes                 Skip --introspect confirmation
+      --explain             Add AI explanations for findings (needs ANTHROPIC_API_KEY or OPENAI_API_KEY)
+      --provider <name>     anthropic | openai | auto        (default: auto)
+      --model <name>        Model name (or env MCP_AUDIT_MODEL)
+      --dry-run             With --explain: print the prompt that would be sent, then exit
       --strict              Treat parse/read errors as failures (exit 1)
 `);
 }
@@ -63,6 +67,10 @@ async function main(): Promise<void> {
       tools: { type: 'string' },
       introspect: { type: 'boolean' },
       yes: { type: 'boolean', short: 'y' },
+      explain: { type: 'boolean' },
+      provider: { type: 'string' },
+      model: { type: 'string' },
+      'dry-run': { type: 'boolean' },
       strict: { type: 'boolean' },
     },
     allowPositionals: true,
@@ -129,6 +137,31 @@ async function main(): Promise<void> {
         toolsPath: values.tools,
         introspect: values.introspect,
       });
+
+      // Add AI explanations if requested
+      if (values.explain && result.findings.length > 0) {
+        try {
+          const { explainFindings } = await import('./explain/index.js');
+          const explanations = await explainFindings(result.findings, {
+            provider: values.provider as 'anthropic' | 'openai' | 'auto' | undefined,
+            model: values.model,
+            dryRun: values['dry-run'],
+          });
+          for (const finding of result.findings) {
+            if (explanations[finding.ruleId]) {
+              finding.explanation = explanations[finding.ruleId];
+            }
+          }
+        } catch (e) {
+          console.error(`Explanation failed: ${e instanceof Error ? e.message : String(e)}`);
+          if (values['dry-run']) {
+            process.exit(0);
+          }
+        }
+        if (values['dry-run']) {
+          process.exit(0);
+        }
+      }
 
       let output: string;
       switch (values.format) {

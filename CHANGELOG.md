@@ -3,6 +3,16 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com) and [S
 
 ## [Unreleased]
 
+## [0.4.0] - 2024-XX-XX
+### Added
+- AI explanations (`--explain` flag) with Anthropic and OpenAI provider support:
+  - Provider auto-detection (prefers Anthropic, falls back to OpenAI)
+  - Explicit provider selection via `--provider anthropic|openai|auto`
+  - Custom model via `--model` or `MCP_AUDIT_MODEL` env
+  - `--dry-run` flag to preview the prompt sent to AI
+  - Explanations built from redacted findings only (no secrets, paths, env values)
+  - Graceful degradation: clear error if no API key configured
+
 ## [0.3.0] - 2024-XX-XX
 ### Added
 - Introspection (`--introspect` flag) to start/connect to MCP servers and fetch live tool definitions:
