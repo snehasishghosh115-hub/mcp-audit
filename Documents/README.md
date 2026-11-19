@@ -68,7 +68,7 @@ Create `.mcp-audit.json` (or run `mcp-audit init`):
 **GitHub Actions**
 ```yaml
 - uses: actions/checkout@v4
-- uses: <your-username>/mcp-audit@v1
+- uses: snehasishghosh115-hub/mcp-audit@v1
   with: { fail-on: high }
 - uses: github/codeql-action/upload-sarif@v3
   if: always()
@@ -78,7 +78,7 @@ Create `.mcp-audit.json` (or run `mcp-audit init`):
 **pre-commit**
 ```yaml
 repos:
-  - repo: https://github.com/<your-username>/mcp-audit
+  - repo: https://github.com/snehasishghosh115-hub/mcp-audit
     rev: v1.0.0
     hooks: [{ id: mcp-audit }]
 ```
