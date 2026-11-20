@@ -87,7 +87,7 @@ Add to \`.mcp-audit.json\`:
       if (config.trustedPackages.some(tp => dlxSpec.startsWith(tp))) return findings;
       if (isPinned(dlxSpec)) return findings;
 
-      const loc = entry.locOf(['args', args.indexOf(dlxSpec)]);
+      const loc = entry.locOf(['args', args.indexOf('dlx') + 1 + effectiveArgs.indexOf(dlxSpec)]);
       findings.push({
         ruleId: 'MCPA-SEC-004',
         severity: SEVERITY,

@@ -1,6 +1,6 @@
 {
   "name": "@snehasishghosh115-hub/mcp-audit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Security audit CLI for MCP server configs and tool definitions",
   "type": "module",
   "bin": {

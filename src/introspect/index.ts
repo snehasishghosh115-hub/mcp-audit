@@ -2,7 +2,7 @@ import { StdioMcpClient } from './stdio-client.js';
 import { HttpMcpClient } from './http-client.js';
 import type { ServerEntry } from '../types.js';
 import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { join, delimiter } from 'node:path';
 
 export interface IntrospectResult {
   serverId: string;
@@ -124,7 +124,7 @@ async function introspectHttp(
 async function resolveCommand(cmd: string): Promise<string> {
   if (cmd.includes('/') || cmd.includes('\\')) return cmd;
 
-  const pathDirs = (process.env['PATH'] ?? '').split(':');
+  const pathDirs = (process.env['PATH'] ?? '').split(delimiter);
   for (const dir of pathDirs) {
     const fullPath = join(dir, cmd);
     try {

@@ -1,5 +1,5 @@
 import { readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { CLIENTS, findProjectRoot } from './clients.js';
 import type { ClientConfig, ClientId, ScanError } from '../types.js';
 
@@ -29,7 +29,8 @@ export function discoverConfigFiles(options: DiscoverOptions = {}): {
 
   if (options.explicitPaths && options.explicitPaths.length > 0) {
     for (const explicitPath of options.explicitPaths) {
-      const fullPath = join(cwd, explicitPath);
+      // resolve() handles both absolute and relative paths correctly
+      const fullPath = resolve(cwd, explicitPath);
       if (existsSync(fullPath)) {
         try {
           const content = readFileSync(fullPath, 'utf-8');

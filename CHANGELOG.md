@@ -1,9 +1,23 @@
 # Changelog
 All notable changes follow [Keep a Changelog](https://keepachangelog.com) and [SemVer](https://semver.org).
 
+## [1.0.1] - 2026-11-20
+### Fixed
+- **engine/run.ts**: Rule engine no longer overwrites per-finding severity with the rule's static default severity. This restores MCPA-SEC-014's dynamic medium-severity downgrade for read-only auto-approve tool lists.
+- **tsup.config.ts**: Shebang (`#!/usr/bin/env node`) is now scoped only to `cli.js`; library outputs (`index.js`, `index.cjs`) no longer include it, preventing bundler breakage for downstream consumers.
+- **sec-004-unpinned-package.ts**: Fixed wrong location index for `pnpm dlx` / `yarn dlx` packages in position tracking.
+- **sec-005-floating-version.ts**: Pre-release semver versions like `pkg@1.0.0-beta.1` are no longer falsely flagged as floating branch names.
+- **discovery/clients.ts**: `findProjectRoot` now correctly terminates on Windows (`parent === current` check instead of hardcoded `'/'`).
+- **discovery/discover.ts**: Explicit paths are resolved with `resolve()` instead of `join()`, handling absolute paths correctly on all platforms.
+- **introspect/index.ts**: `PATH` entries are now split with `path.delimiter` instead of hardcoded `':'`, fixing command resolution on Windows.
+- **reporters/text.ts**: Header line now shows the actual `VERSION` constant instead of a hardcoded `'0.1.0-alpha'` fallback.
+### Added
+- **test/edge-cases.test.ts**: 28 new edge-case tests covering all fixed bugs plus boundary conditions (pre-release semver, allowRemoteHosts subdomain matching, evidence redaction, severity sort order, ignore specificity).
+- **README.md**: Comprehensive user documentation including full CLI flags reference, rules table, configuration guide, CI examples (GitHub Actions + pre-commit), programmatic TypeScript API with types, custom rule authoring guide, AI explanations, live introspection, and privacy guarantees.
+
 ## [Unreleased]
 
-## [0.4.0] - 2024-XX-XX
+## [0.4.0] - 2024-11-20
 ### Added
 - AI explanations (`--explain` flag) with Anthropic and OpenAI provider support:
   - Provider auto-detection (prefers Anthropic, falls back to OpenAI)
@@ -13,7 +27,7 @@ All notable changes follow [Keep a Changelog](https://keepachangelog.com) and [S
   - Explanations built from redacted findings only (no secrets, paths, env values)
   - Graceful degradation: clear error if no API key configured
 
-## [0.3.0] - 2024-XX-XX
+## [0.3.0] - 2024-10-15
 ### Added
 - Introspection (`--introspect` flag) to start/connect to MCP servers and fetch live tool definitions:
   - stdio transport support (JSON-RPC 2.0 over stdin/stdout)

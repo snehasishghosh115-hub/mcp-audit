@@ -30,13 +30,16 @@ export function runRules(
       if (config.skipRuleIds?.includes(rule.id)) continue;
 
       const severityOverride = config.severityOverrides[rule.id];
-      const effectiveSeverity = severityOverride ?? rule.severity;
+      // Only override severity if the user has explicitly configured it in severityOverrides.
+      // Otherwise, use the per-finding severity returned by the rule (which may differ from
+      // rule.severity for rules that dynamically downgrade e.g. read-only auto-approve).
 
       if (shouldIgnore(rule.id, entry, config)) continue;
 
       try {
         const ruleFindings = rule.check(context);
         for (const finding of ruleFindings) {
+          const effectiveSeverity = severityOverride ?? finding.severity;
           const finalFinding = { ...finding, severity: effectiveSeverity };
           if (meetsMinSeverity(finalFinding.severity, config.minSeverity)) {
             findings.push(finalFinding);

@@ -26,9 +26,11 @@ function isFloatingVersion(spec: string): boolean {
   if (/^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$/.test(version)) return false; // Semver
   // Ranges: ^1.2.3, ~1.2.3, >1.2.3, >=1.2.3, <1.2.3, etc.
   if (/^[\^~><=]/.test(version)) return true;
-  // Git branch refs (heuristic: contains slash or dash, not semver)
-  if (version.includes('/') || (version.includes('-') && !/^\d+\.\d+\.\d+-/.test(version))) {
-    // Could be a branch name like "main", "develop", "feature/xyz"
+  // Git branch refs (heuristic: contains slash, or dash-only without numeric prerelease pattern)
+  if (version.includes('/')) return true;
+  // Allow pre-release semver like 1.0.0-beta.1 or 1.2.3-rc.1 (not floating)
+  if (version.includes('-') && !/^\d+\.\d+\.\d+-/.test(version)) {
+    // Not a semver prerelease, treat as branch name
     return true;
   }
   return false;

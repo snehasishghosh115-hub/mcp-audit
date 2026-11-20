@@ -1,4 +1,5 @@
 import type { ScanResult, Finding, Severity } from '../types.js';
+import { VERSION } from '../version.js';
 
 const SEVERITY_SYMBOLS: Record<Severity, string> = {
   critical: '✖',
@@ -31,7 +32,7 @@ export function printTextReport(result: ScanResult): string {
   const lines: string[] = [];
 
   lines.push(
-    `mcp-audit ${result.scannedFiles.length > 0 ? 'scan' : '0.1.0-alpha'} · scanned ${result.scannedFiles.length} files · ${result.servers} servers · ${result.findings.length} findings`
+    `mcp-audit v${VERSION} · scanned ${result.scannedFiles.length} files · ${result.servers} servers · ${result.findings.length} findings`
   );
   lines.push('');
 
@@ -54,8 +55,7 @@ export function printTextReport(result: ScanResult): string {
     for (const [server, serverFindings] of byServer.entries()) {
       const first = serverFindings[0];
       if (!first) continue;
-      const transport = first.client; // We don't have transport in Finding, use client as placeholder
-      lines.push(`  ${server} (${transport})`);
+      lines.push(`  ${server}`);
       for (const f of serverFindings) {
         const symbol = SEVERITY_SYMBOLS[f.severity];
         const severityStr = f.severity.toUpperCase().padEnd(8);

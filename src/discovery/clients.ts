@@ -74,7 +74,8 @@ export function getClientPaths(
 
 export function findProjectRoot(start: string): string {
   let current = start;
-  while (current !== '/') {
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
     try {
       if (existsSync(join(current, '.git'))) {
         return current;
@@ -83,7 +84,7 @@ export function findProjectRoot(start: string): string {
       // ignore
     }
     const parent = join(current, '..');
-    if (parent === current) break;
+    if (parent === current) break; // Reached filesystem root (works on both Unix and Windows)
     current = parent;
   }
   return start;
